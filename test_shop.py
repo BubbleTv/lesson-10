@@ -20,54 +20,56 @@ from pages.checkout_page import CheckoutPage
     3. Переход в корзину и оформление заказа
     4. Заполнение формы данными
     5. Проверка итоговой суммы заказа
-    
+
     Ожидаемый результат: итоговая сумма равна $58.29
 """)
 @allure.severity(allure.severity_level.BLOCKER)
 class TestShop:
-    
+
     @allure.title("Проверка оформления заказа")
     def test_shop_checkout(self):
         """Тест оформления заказа в интернет-магазине."""
-       
         firefox_options = Options()
         firefox_options.add_argument("--start-maximized")
         driver = webdriver.Firefox(options=firefox_options)
-        
+
         try:
             with allure.step("Создание объектов страниц"):
                 login_page = LoginPage(driver)
                 inventory_page = InventoryPage(driver)
                 cart_page = CartPage(driver)
                 checkout_page = CheckoutPage(driver)
-            
+
             with allure.step("Авторизация пользователя standard_user"):
                 login_page.open()
                 login_page.login("standard_user", "secret_sauce")
-            
+
             with allure.step("Добавление товаров в корзину"):
                 inventory_page.add_backpack_to_cart()
                 inventory_page.add_bolt_tshirt_to_cart()
                 inventory_page.add_onesie_to_cart()
-            
+
             with allure.step("Переход в корзину"):
                 inventory_page.go_to_cart()
-            
+
             with allure.step("Нажатие кнопки Checkout"):
                 cart_page.click_checkout()
-            
+
             with allure.step("Заполнение формы данными"):
                 checkout_page.fill_checkout_form("Иван", "Петров", "123456")
-            
+
             with allure.step("Нажатие кнопки Continue"):
                 checkout_page.click_continue()
-            
+
             with allure.step("Получение итоговой суммы"):
                 total = checkout_page.get_total()
-            
+
             with allure.step("Проверка итоговой суммы"):
-                assert total == "58.29", f"Ожидалась сумма '58.29', получена '{total}'"
-                
+                expected_total = "58.29"
+                assert total == expected_total, (
+                    f"Ожидалась сумма '{expected_total}', получена '{total}'"
+                )
+
         finally:
             with allure.step("Закрытие браузера"):
                 driver.quit()
